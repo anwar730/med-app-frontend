@@ -13,6 +13,8 @@ import PatientAppointments from "./pages/PatientAppointment";
 import PatientRecords from "./pages/PatientRecords";
 import PatientBilling from "./pages/PatientBilling";
 import DoctorPatientRecords from "./pages/DoctorPatientRecords";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import DoctorAppointments from "./pages/DoctorAppointments";
 import AdminBilling from "./pages/AdminBilling";
 import Profile from "./pages/Profile";
@@ -37,6 +39,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/doctor/appointments" element={<DoctorAppointments/>} />
           <Route path="/doctor/patient-records" element={<DoctorPatientRecords/>} />
           <Route path="/medical-record/:patientId" element={<MedicalRecordPage/>} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/cancel" element={<PaymentCancel />} />
+
 
         </Routes>
       </BrowserRouter>

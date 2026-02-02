@@ -92,7 +92,7 @@ export default function PrescriptionModal({
         body: JSON.stringify({ billing: { amount, status: "unpaid" } }),
       }
     );
-    navigate("/dahboard");
+    navigate("/dashboard");
     if (!billingRes.ok) {
       const errData = await billingRes.json();
       console.error("Billing error:", errData);
