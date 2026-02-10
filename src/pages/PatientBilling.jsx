@@ -2,11 +2,14 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import Navbar from "../components/shared/Navbar";
-import { CreditCard, Calendar, FileText } from "lucide-react";
+import { CreditCard, Calendar, FileText, Smartphone } from "lucide-react";
 
 export default function PatientBilling() {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [selectedBillId, setSelectedBillId] = useState(null);
+  const [mpesaLoading, setMpesaLoading] = useState(false);
 
   const links = [
     { path: "/dash/appointments", label: "My Appointments", icon: <Calendar size={18} /> },
@@ -58,36 +61,121 @@ export default function PatientBilling() {
   }, []);
 
   // 🔥 STRIPE CHECKOUT
-  const handlePayment = async (bill) => {
-  try {
-    const token = localStorage.getItem("token");
+  const handleStripePayment = async (bill) => {
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch(
-      `http://localhost:3000/billings/${bill.id}/create_checkout_session`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const res = await fetch(
+        `http://localhost:3000/billings/${bill.id}/create_checkout_session`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const text = await res.text();
+      console.log("Stripe response:", res.status, text);
+
+      if (!res.ok) {
+        throw new Error(text);
       }
-    );
 
-    const text = await res.text(); // 🔥 read raw response
-    console.log("Stripe response:", res.status, text);
+      const data = JSON.parse(text);
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Stripe error:", err.message);
+      alert(err.message);
+    }
+  };
 
-    if (!res.ok) {
-      throw new Error(text);
+  // 📱 M-PESA STK PUSH
+  const handleMpesaPayment = async (bill) => {
+    if (!phoneNumber) {
+      alert("Please enter your M-Pesa phone number");
+      return;
     }
 
-    const data = JSON.parse(text);
-    window.location.href = data.url;
-  } catch (err) {
-    console.error("Stripe error:", err.message);
-    alert(err.message);
-  }
-};
+    // Validate phone number format (254XXXXXXXXX)
+    const cleanPhone = phoneNumber.replace(/\s+/g, "");
+    if (!/^254\d{9}$/.test(cleanPhone)) {
+      alert("Please enter a valid phone number (e.g., 254712345678)");
+      return;
+    }
 
+    setMpesaLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `http://localhost:3000/billings/${bill.id}/mpesa_payment`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phone_number: cleanPhone,
+            amount: bill.amount,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "M-Pesa payment failed");
+      }
+
+      alert(
+        "✅ Payment request sent! Please check your phone and enter your M-Pesa PIN."
+      );
+      setSelectedBillId(null);
+      setPhoneNumber("");
+
+      // Optional: Poll for payment status
+      checkPaymentStatus(bill.id);
+    } catch (err) {
+      console.error("M-Pesa error:", err.message);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setMpesaLoading(false);
+    }
+  };
+
+  // Optional: Check payment status
+  const checkPaymentStatus = async (billId) => {
+    const token = localStorage.getItem("token");
+    
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/billings/${billId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const bill = await res.json();
+        
+        if (bill.status === "paid") {
+          clearInterval(interval);
+          alert("✅ Payment confirmed!");
+          // Refresh bills
+          window.location.reload();
+        }
+      } catch (err) {
+        console.error("Status check error:", err);
+      }
+    }, 5000); // Check every 5 seconds
+
+    // Stop checking after 2 minutes
+    setTimeout(() => clearInterval(interval), 120000);
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -131,12 +219,61 @@ export default function PatientBilling() {
                   </p>
 
                   {bill.status !== "paid" && (
-                    <button
-                      onClick={() => handlePayment(bill)}
-                      className="mt-3 px-4 py-1 text-sm rounded-lg bg-purple-600 text-white hover:bg-purple-700"
-                    >
-                      Pay Now
-                    </button>
+                    <div className="mt-3 space-y-2">
+                      {/* Payment method toggle */}
+                      {selectedBillId === bill.id ? (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <input
+                              type="tel"
+                              placeholder="254712345678"
+                              value={phoneNumber}
+                              onChange={(e) => setPhoneNumber(e.target.value)}
+                              className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                            <button
+                              onClick={() => handleMpesaPayment(bill)}
+                              disabled={mpesaLoading}
+                              className="px-4 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 flex items-center gap-2"
+                            >
+                              {mpesaLoading ? (
+                                "Processing..."
+                              ) : (
+                                <>
+                                  <Smartphone size={16} />
+                                  Confirm
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedBillId(null);
+                              setPhoneNumber("");
+                            }}
+                            className="text-xs text-gray-500 hover:text-gray-700"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectedBillId(bill.id)}
+                            className="px-4 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
+                          >
+                            <Smartphone size={16} />
+                            Pay with M-Pesa
+                          </button>
+                          <button
+                            onClick={() => handleStripePayment(bill)}
+                            className="px-4 py-2 text-sm rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                          >
+                            Pay with Card
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}
