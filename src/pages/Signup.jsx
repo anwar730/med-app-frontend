@@ -17,6 +17,7 @@ export default function Signup() {
     specialization: "",
     license_number: "",
     workplace: "",
+    consultation_fee: "",
     cv: null,
   });
   const [busy, setBusy] = useState(false);
@@ -46,7 +47,7 @@ export default function Signup() {
       }
     }
     if (form.role === "pending_doctor") {
-      if (!form.specialization || !form.license_number || !form.workplace || !form.cv) {
+      if (!form.specialization || !form.license_number || !form.workplace || !form.consultation_fee || !form.cv) {
         return "Please complete all doctor fields and upload your CV.";
       }
     }
@@ -126,6 +127,7 @@ export default function Signup() {
         <input
           className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700"
           placeholder="Email"
+          type="email"
           name="email"
           value={form.email}
           onChange={handleChange}
@@ -212,8 +214,19 @@ export default function Signup() {
     <input
       className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700"
       placeholder="Medical License Number"
+      type="number"
       name="license_number"
       value={form.license_number}
+      onChange={handleChange}
+    />
+    <input
+      className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none text-gray-700"
+      placeholder="Consultation Fee (KES)"
+      name="consultation_fee"
+      type="number"
+      step="0.01"
+      min="0"
+      value={form.consultation_fee}
       onChange={handleChange}
     />
     <input

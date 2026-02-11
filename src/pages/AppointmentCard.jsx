@@ -67,6 +67,7 @@ export default function AppointmentCard({ appointment, onUpdate }) {
           <p className="font-semibold text-gray-800">
             Patient: {appointment.patient?.name || "N/A"}
           </p>
+          <p className="text-sm text-gray-600">Phone: {appointment.patient?.phone}</p>
           <p className="text-sm text-gray-500">
             {new Date(appointment.scheduled_at).toLocaleString()}
           </p>

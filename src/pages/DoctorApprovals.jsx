@@ -57,19 +57,23 @@ export default function DoctorApprovals() {
                 <th className="border px-3 py-2">Specialization</th>
                 <th className="border px-3 py-2">Work Place</th>
                 <th className="border px-3 py-2">License NO.</th>
+                <th className="border px-3 py-2">Consultation Fee.</th>
                 <th className="border px-3 py-2">CV</th>
                 <th className="border px-3 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pendingDoctors.map((doc) => (
+                
                 <tr key={doc.id}>
+                  
                   <td className="border px-3 py-2">{doc.id}</td>
                   <td className="border px-3 py-2">{doc.name}</td>
                   <td className="border px-3 py-2">{doc.email}</td>
                   <td className="border px-3 py-2">{doc.specialization}</td>
                   <td className="border px-3 py-2">{doc.workplace}</td>
                   <td className="border px-3 py-2">{doc.license_number}</td>
+                  <td className="border px-3 py-2">{doc.consultation_fee}</td>
                   <td className="border px-3 py-2">
                     {doc.cv_url ? (
                       <a
@@ -98,7 +102,7 @@ export default function DoctorApprovals() {
                       Reject
                     </button>
                   </td>
-                </tr>
+                </tr> 
               ))}
               {pendingDoctors.length === 0 && (
                 <tr>

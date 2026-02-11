@@ -242,8 +242,8 @@ export default function PatientDashboard() {
             {selectedDoctor.workplace || "N/A"}
           </p>
           <p className="text-gray-600 flex items-center gap-2">
-            <span className="material-icons text-blue-500">Email</span>
-            {selectedDoctor.email}
+            <span className="material-icons text-blue-500">Consultation Fee</span>
+            Ksh {selectedDoctor.consultation_fee}
           </p>
           {/* {selectedDoctor.phone && (
             <p className="text-gray-600 flex items-center gap-2">
