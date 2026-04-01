@@ -99,6 +99,7 @@ export default function AppointmentCard({ appointment, onUpdate }) {
               onClick={() => {
                 updateStatus("in_progress");
                 setShowRecordModal(true);
+                console.log(appointment.status)
               }}
               className="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
             >

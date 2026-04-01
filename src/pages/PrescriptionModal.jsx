@@ -386,8 +386,10 @@ export default function PrescriptionModal({
                   <div className="flex justify-between">
                     <span className="text-gray-600">Date:</span>
                     <span className="font-semibold text-gray-800">
-                      {new Date(appointment?.date).toLocaleDateString()}
-                    </span>
+  {appointment?.date
+    ? new Date(appointment.date).toLocaleDateString("en-GB")
+    : "-"}
+</span>
                   </div>
                 </div>
               </div>

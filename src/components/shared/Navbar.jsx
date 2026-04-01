@@ -18,7 +18,7 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
         <HeartPulse className="text-teal-600 w-6 h-6" strokeWidth={2.5} />
         <h1 className="text-xl font-bold text-teal-700 tracking-wide">
-          MediTechno
+          MedApp
         </h1>
       </div>
 

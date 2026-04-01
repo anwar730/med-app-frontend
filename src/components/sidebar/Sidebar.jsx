@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { HeartPulse } from "lucide-react"; // medical-looking icon
+
 
 export default function Sidebar({ links = [] }) {
   const loc = useLocation();
@@ -7,11 +9,11 @@ export default function Sidebar({ links = [] }) {
   return (
     <aside className="w-64 bg-gradient-to-t from-blue-300 to-teal-500 border-r border-gray-200 h-screen p-6 flex flex-col shadow-sm">
       {/* Header / Branding */}
-      <div className="mb-10">
+      <div className="mb-10 flex  items-center gap-3">
         <h2 className="text-2xl font-extrabold text-white-600 tracking-wide">
-          MediTechno
+          MedApp  
         </h2>
-       
+       <HeartPulse className="w-8 h-8 text-red-600" />
       </div>
 
       {/* Navigation */}
